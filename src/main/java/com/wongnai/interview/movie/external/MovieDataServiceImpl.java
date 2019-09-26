@@ -1,10 +1,17 @@
 package com.wongnai.interview.movie.external;
 
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestOperations;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.List;
 
 @Component
 public class MovieDataServiceImpl implements MovieDataService {
@@ -24,6 +31,25 @@ public class MovieDataServiceImpl implements MovieDataService {
 		// Please noted that you must only read data remotely and only from given source,
 		// do not download and use local file or put the file anywhere else.
 
-		return null;
+		try {
+			URL obj = new URL(MOVIE_DATA_URL);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+			String inputLine;
+
+			StringBuffer response = new StringBuffer();
+			while ((inputLine = in.readLine()) != null) {
+				response.append(inputLine);
+			}
+			in.close();
+
+			MoviesResponse movieData = objectMapper.readValue(response.toString(), MoviesResponse.class);
+			return movieData;
+
+		} catch (Exception e) {
+			System.out.println(e);
+			return null;
+		}
 	}
+
 }
